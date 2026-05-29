@@ -4,9 +4,11 @@ __pycache__/
 *.pyd
 *.so
 
+#Banco de dados
+*.db
+
 # Virtual environments
 venv/
-
 .venv/
 env/
 ENV/
