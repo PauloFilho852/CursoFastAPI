@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI,Header , HTTPException, Query, status, Path
 from models import Curso
 
-app = FastAPI()
+app = FastAPI(title="Curso de API", description="API do curso de FastAPI", version="1.0.0")
 
 cursos: dict[int, dict] = {
     1: {"id": 1, "nome": "Python", "duracao": 40, "valor": 100.0},
@@ -15,7 +15,7 @@ def criar_id_curso() -> int:
     return 1
 
 
-@app.get("/cursos")
+@app.get("/cursos", description="Obter a lista de cursos disponíveis", summary="Lista de cursos", response_model=dict[int, dict])
 async def get_cursos(header: str = Header(None)):
     if header == "admin":
         return cursos
