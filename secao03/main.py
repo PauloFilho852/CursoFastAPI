@@ -1,7 +1,9 @@
-from fastapi import Depends, FastAPI,Header , HTTPException, Query, status, Path
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, status, Path
 from models import Curso
 
-app = FastAPI(title="Curso de API", description="API do curso de FastAPI", version="1.0.0")
+app = FastAPI(
+    title="Curso de API", description="API do curso de FastAPI", version="1.0.0"
+)
 
 cursos: dict[int, dict] = {
     1: {"id": 1, "nome": "Python", "duracao": 40, "valor": 100.0},
@@ -9,22 +11,30 @@ cursos: dict[int, dict] = {
     3: {"id": 3, "nome": "Java", "duracao": 50, "valor": 120.0},
 }
 
+
 def criar_id_curso() -> int:
     if cursos:
         return max(cursos.keys()) + 1
     return 1
 
 
-@app.get("/cursos", description="Obter a lista de cursos disponíveis", summary="Lista de cursos", response_model=dict[int, dict])
+@app.get(
+    "/cursos",
+    description="Obter a lista de cursos disponíveis",
+    summary="Lista de cursos",
+    response_model=dict[int, dict],
+)
 async def get_cursos(header: str = Header(None)):
     if header == "admin":
         return cursos
     else:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado")
+            status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado"
+        )
 
-#GET com query params
-@app.get("/cursos/buscar" )
+
+# GET com query params
+@app.get("/cursos/buscar")
 async def buscar_cursos(nome: str = None, duracao: int = Query(None, gt=29)):
     resultados = []
     for curso in cursos.values():
@@ -32,12 +42,17 @@ async def buscar_cursos(nome: str = None, duracao: int = Query(None, gt=29)):
             continue
         if duracao and curso["duracao"] != duracao:
             continue
-        resultados.append(curso )
+        resultados.append(curso)
     return resultados
 
-#GET com path params
+
+# GET com path params
 @app.get("/cursos/{curso_id}")
-async def get_curso(curso_id: int = Path(..., title="ID do Curso", description="ID do curso a ser obtido", gt=0, lt=4)):
+async def get_curso(
+    curso_id: int = Path(
+        ..., title="ID do Curso", description="ID do curso a ser obtido", gt=0, lt=4
+    ),
+):
     curso = cursos.get(curso_id)
     if not curso:
         raise HTTPException(
@@ -72,7 +87,6 @@ async def delete_curso(curso_id: int):
         )
     del cursos[curso_id]
     return None
-
 
 
 if __name__ == "__main__":
