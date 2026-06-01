@@ -1,10 +1,9 @@
-from pydantic import BaseModel as SChemaBaseModel
+from pydantic import BaseModel as SChemaBaseModel, ConfigDict
+
 
 class CursoSchema(SChemaBaseModel):
-    id: int | None
+    id: int | None = None
     nome: str
     descricao: str
     duracao: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

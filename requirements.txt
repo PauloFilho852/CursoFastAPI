@@ -8,7 +8,9 @@ greenlet==3.5.1
 h11==0.16.0
 idna==3.16
 pydantic==2.13.4
+pydantic-settings==2.14.1
 pydantic_core==2.46.4
+python-dotenv==1.2.2
 ruff==0.15.14
 SQLAlchemy==2.0.50
 starlette==1.0.1
