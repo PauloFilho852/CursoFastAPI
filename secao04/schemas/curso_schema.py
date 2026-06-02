@@ -6,4 +6,4 @@ class CursoSchema(SChemaBaseModel):
     nome: str
     descricao: str
     duracao: int
-    model_config = ConfigDict(from_attributes=True)
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
