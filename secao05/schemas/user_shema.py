@@ -9,6 +9,6 @@ class UserSchema(BaseModel):
     admin: int | None = 0
     model_config: ConfigDict = ConfigDict(from_attributes=True)
 
+
 class CreateUserSchema(UserSchema):
     senha: str
-

@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from .base_class import Base
 
+
 class ArtigoModel(Base):
     __tablename__ = "artigos"
     __table_args__ = {"sqlite_autoincrement": True}
