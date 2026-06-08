@@ -6,7 +6,10 @@ class Settings(BaseSettings):
     SERVER_NAME: str = "localhost"
     # SERVER_HOST: AnyHttpUrl = "http://localhost/8000"
     # BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = []
-    PROJECT_NAME: str = "Curso FastAPI"
+    PROJECT_NAME: str = "Curso FastAPI - Seção 05 - Autenticação e Autorização"
+    PROJECT_DESCRIPTION: str = (
+        "API para gerenciamento de usuários e artigos com autenticação e autorização"
+    )
     PROJECT_VERSION: str = "0.1.0"
     SQLALCHEMY_DATABASE_URI: str = "sqlite+aiosqlite:///./app.db"
 

@@ -1,23 +1,57 @@
+from typing import Annotated
+from fastapi import HTTPException, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 from pytz import timezone
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
+from starlette import status
 from .settings import settings
 from .security import verificar_senha
 from .database import get_async_session
 from models.user_model import UserModel as User
 from sqlalchemy.future import select
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/usuarios/login")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="http://127.0.0.1:8000/api/v1/usuarios/login"
+)
+
+credentials_exception = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Não foi possível validar as credenciais",
+    headers={"WWW-Authenticate": "Bearer"},
+)
 
 
-async def autenticar_usuario(email: str, senha: str) -> User:
-    async with get_async_session() as session:
-        result = await session.execute(select(User).where(User.email == email))
-        user = result.scalars().first()
-        if not user or not verificar_senha(senha, user.hashed_password):
-            return None
+async def _autenticar_usuario(
+    email: str, senha: str, session: AsyncSession
+) -> User | None:
+    result = await session.execute(select(User).where(User.email == email))
+    user: User | None = result.scalars().one_or_none()
+    if not user or not verificar_senha(senha, user.hashed_password):
+        return None
         return user
+
+
+async def autenticar_usuario(email: str, senha: str, session: AsyncSession):
+
+    print("EMAIL RECEBIDO:", repr(email))
+    print("SENHA RECEBIDA:", repr(senha))
+
+    result = await session.execute(select(User).where(User.email == email))
+
+    user = result.scalars().one_or_none()
+
+    print("USUARIO:", user)
+
+    if user:
+        print("HASH:", user.hashed_password)
+
+        resultado = verificar_senha(senha, user.hashed_password)
+
+        print("VERIFY:", resultado)
+
+    return user
 
 
 def criar_token_acesso(payload: dict, expires_delta: timedelta = None) -> str:
@@ -36,21 +70,31 @@ def criar_token_acesso(payload: dict, expires_delta: timedelta = None) -> str:
     return encoded_jwt
 
 
-async def pegar_usuario_atual(token: str = oauth2_scheme) -> User:
-    credentials_exception = JWTError("Não foi possível validar as credenciais")
+async def pegar_usuario_atual(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> User:
+
     try:
         payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
         )
-        email: str = payload.get("sub")
+
+        email: str | None = payload.get("sub")
+
         if email is None:
             raise credentials_exception
+
     except JWTError:
         raise credentials_exception
 
-    async with get_async_session() as session:
-        result = await session.execute(select(User).where(User.email == email))
-        user = result.scalars().first()
-        if user is None:
-            raise credentials_exception
-        return user
+    result = await session.execute(select(User).where(User.email == email))
+
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        raise credentials_exception
+
+    return user

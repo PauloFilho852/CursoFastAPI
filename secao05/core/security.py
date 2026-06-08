@@ -8,4 +8,7 @@ def verificar_senha(senha: str, senha_hash: str) -> bool:
 
 
 def gerar_hash_senha(senha: str) -> str:
+    print(type(senha))
+    print(repr(senha))
+    print(len(senha.encode("utf-8")))
     return CRIPT_CONTEXT.hash(senha)
