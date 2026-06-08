@@ -37,7 +37,7 @@ async def criar_usuario(
     usuario_existente = await db.execute(
         select(UserModel).where(UserModel.email == usuario.email)
     )
-    usuario_existente = usuario_existente.scalars().first()
+    usuario_existente = usuario_existente.scalars().one_or_none()
     if usuario_existente:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -159,7 +159,7 @@ async def obter_usuario_por_id(
         resultado = await db.execute(
             select(UserModel).where(UserModel.id == usuario_id)
         )
-        usuario_encontrado = resultado.scalars().first()
+        usuario_encontrado = resultado.scalars().one_or_none()
         if not usuario_encontrado:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -227,7 +227,7 @@ async def atualizar_usuario(
         resultado = await db.execute(
             select(UserModel).where(UserModel.id == usuario_id)
         )
-        usuario_encontrado = resultado.scalars().first()
+        usuario_encontrado = resultado.scalars().one_or_none()
         if not usuario_encontrado:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
